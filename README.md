@@ -42,7 +42,7 @@ Ensure the following dependencies are installed before proceeding:
  1. Install nvm using the following command:
 
     ```bash
-    curl -o- <https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh> | bash
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
     ```
 
  2. Install Node.js using nvm:
@@ -55,7 +55,7 @@ Ensure the following dependencies are installed before proceeding:
 
     ```bash
     curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-        <https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim>
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     ```
 
 ### Setup Configuration
