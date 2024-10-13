@@ -18,11 +18,12 @@ To quickly set up Vim with all dependencies and configurations, follow these ste
     ```
 
 This script will:
- • Install vim-plug.
- • Create a .vimrc file with your preferred settings.
- • Install all specified plugins using vim-plug.
- • Install CoC extensions for JavaScript, Python, HTML, CSS, JSON, Prettier, and more.
- • Create the coc-settings.json file with Prettier and Python configurations.
+
+- Install vim-plug.
+- Create a .vimrc file with your preferred settings.
+- Install all specified plugins using vim-plug.
+- Install CoC extensions for JavaScript, Python, HTML, CSS, JSON, Prettier, and more.
+- Create the coc-settings.json file with Prettier and Python configurations.
 
 Once the script completes, your Vim environment will be fully set up with the necessary plugins and configurations.
 
@@ -32,9 +33,9 @@ Once the script completes, your Vim environment will be fully set up with the ne
 
 Ensure the following dependencies are installed before proceeding:
 
- • Vim (usually installed by default).
- • Node.js: You can install Node.js using nvm for better version management. Visit NodeJS for more information.
- • vim-plug: A minimalist plugin manager for Vim. Visit Vim-Plug for more information.
+- Vim (usually installed by default).
+- Node.js: You can install Node.js using nvm for better version management. Visit NodeJS for more information.
+- vim-plug: A minimalist plugin manager for Vim. Visit Vim-Plug for more information.
 
 ### Install Dependencies
 
@@ -63,13 +64,13 @@ Ensure the following dependencies are installed before proceeding:
 
 To set up the Vim configuration manually, follow these steps:
 
- • Move the provided vimrc.txt file to your home directory and rename it to .vimrc:
+- Move the provided vimrc.txt file to your home directory and rename it to .vimrc:
 
 ```bash
 mv ./vimrc.txt ~/.vimrc
 ```
 
- • Open Vim and install the plugins by running:
+- Open Vim and install the plugins by running:
 
 ```bash
 :PlugInstall
