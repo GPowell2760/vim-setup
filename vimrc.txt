@@ -91,6 +91,9 @@ autocmd FileType markdown setlocal tabstop=2 shiftwidth=2 expandtab
 autocmd FileType markdown setlocal spell spelllang=en_us
 autocmd FileType markdown nnoremap <silent><buffer> <leader>p :call coc#rpc#request('markdown-preview-enhanced.openPreview')<CR>
 
+" Disable automatic code folding for markdown
+let g:vim_markdown_folding_disabled = 1
+
 " Dynamically set Catppuccin theme based on OS light/dark mode
 if has('mac')
     " macOS: Check if the system is in dark mode
