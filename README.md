@@ -23,7 +23,7 @@ What the script does:
 - Installs [vim-plug](https://github.com/junegunn/vim-plug) for plugin management
 - Backs up any existing Vim configuration files (e.g., .vimrc, .tmux.conf, and coc-settings.json) to a directory called vim_backup in your home folder.
 - Sets up a new .vimrc file with your preferred settings for web development, including plugins like fzf.vim, NERDTree, lightline.vim, and others.
-- Installs essential [Coc](https://github.com/neoclide/coc.nvim) (Conquer of Completion) extensions for JavaScript, Python, HTML, CSS, JSON, Prettier, Markdown, and more.
+- Installs essential [CoC](https://github.com/neoclide/coc.nvim) (Conquer of Completion) extensions for JavaScript, Python, HTML, CSS, JSON, Prettier, Markdown, and more.
 - Creates a coc-settings.json file with settings for Prettier, Python linting and formatting, and file validation.
 
 Once the script completes, your Vim environment will be fully set up with the necessary plugins and configurations.
