@@ -1,10 +1,79 @@
 #!/bin/bash
 
-# Check if vim-plug is installed
+# Detect platform
+OS_TYPE="$(uname)"
+if [[ "$OS_TYPE" == "Linux" ]]; then
+    echo "Linux detected."
+    INSTALL_CMD="sudo apt install -y"
+elif [[ "$OS_TYPE" == "Darwin" ]]; then
+    echo "macOS detected."
+    INSTALL_CMD="brew install"
+    if ! command -v brew &> /dev/null; then
+        echo "Homebrew is not installed. Please install Homebrew first: https://brew.sh/"
+        exit 1
+    fi
+else
+    echo "Unsupported OS detected: $OS_TYPE"
+    echo "This script only supports Linux and macOS. Exiting..."
+    exit 1
+fi
+
+# Install tmux for terminal management
+if ! command -v tmux &> /dev/null; then
+    echo "Installing tmux..."
+    $INSTALL_CMD tmux
+else
+    echo "tmux is already installed"
+fi
+
+# Check if Vim is installed
+if ! command -v vim &> /dev/null; then
+    echo "Vim could not be found. Installing Vim..."
+    $INSTALL_CMD vim
+else
+    echo "Vim is already installed."
+fi
+
+# Check if fzf is installed
+if ! command -v fzf &> /dev/null; then
+    echo "fzf not found. Installing fzf..."
+    $INSTALL_CMD fzf
+else
+    echo "fzf is already installed."
+fi
+
+# Install vim-plug if not installed
 if [ ! -f ~/.vim/autoload/plug.vim  ]; then
     echo "Installing vim-plug..."
     curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    if [ $? -ne 0  ]; then
+        echo "Failed to install vim-plug. Exiting..."
+        exit 1
+    fi
+else
+    echo "vim-plug is already installed."
+fi
+
+# Create a backup directory for configuration files
+BACKUP_DIR=~/vim_backup
+mkdir -p "$BACKUP_DIR"
+echo "Backing up current configuration files to $BACKUP_DIR"
+
+# Backup existing configuration files
+if [ -f ~/.vimrc ]; then
+    mv ~/.vimrc "$BACKUP_DIR/.vimrc.bak"
+    echo ".vimrc file backed up as $BACKUP_DIR/.vimrc.bak"
+fi
+
+if [ -f ~/.tmux.conf ]; then
+    mv ~/.tmux.conf "$BACKUP_DIR/.tmux.conf.bak"
+    echo ".tmux.conf file backed up as $BACKUP_DIR/.tmux.conf.bak"
+fi
+
+if [ -f ~/.vim/coc-settings.json ]; then
+    mv ~/.vim/coc-settings.json "$BACKUP_DIR/coc-settings.json.bak"
+    echo "coc-settings.json backed up as $BACKUP_DIR/coc-settings.json.bak"
 fi
 
 # Create .vimrc file with provided configuration
@@ -20,12 +89,11 @@ Plug 'maxmellon/vim-jsx-pretty'         " JSX syntax highlighting
 Plug 'tpope/vim-commentary'             " Easy commenting
 Plug 'neoclide/coc.nvim', {'branch': 'release'} " Main plugin for LSP, formatting, etc.
 Plug 'plasticboy/vim-markdown'          " Markdown syntax highlighting
-
-" Additional lightweight and utility plugins
 Plug 'jiangmiao/auto-pairs'             " Auto close brackets, tags
 Plug 'tpope/vim-surround'               " Surround words with tags/quotes/brackets
 Plug 'preservim/nerdtree'               " File explorer
-Plug 'ctrlpvim/ctrlp.vim'               " Fuzzy file finder
+Plug 'junegunn/fzf.vim'                 " Fzf fuzzy finder
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'tpope/vim-fugitive'               " Git integration
 Plug 'itchyny/lightline.vim'            " Lightweight statusline
 
@@ -40,6 +108,7 @@ set tabstop=4               " Tab width (4 spaces)
 set shiftwidth=4            " Autoindent width
 set expandtab               " Use spaces instead of tabs
 set termguicolors           " Sets GUI colors for catppuccin
+let mapleader = ','         " Set leader key to ,
 
 " Search settings
 set ignorecase              " Case-insensitive search
@@ -48,9 +117,36 @@ set smartcase               " If uppercase is used, respect case sensitivity
 " Enable NERDTree toggle
 nnoremap <C-n> :NERDTreeToggle<CR>
 
-" Configure CtrlP for fast file search
-let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
-let g:ctrlp_working_path_mode = 0
+" Auto-open and close NERDTree
+autocmd vimenter * NERDTree | wincmd p
+autocmd BufEnter * if winnr('$') == 1 && exists('t:NERDTreeBufName') && bufname() == t:NERDTreeBufName | quit | endif
+
+" Fzf keybindings
+nnoremap <C-p> :Files<CR>    " Fuzzy file search
+nnoremap <C-b> :Buffers<CR>  " Search open buffers
+nnoremap <C-f> :Rg<CR>       " Fuzzy search through files
+
+" Lightline settings for a lightweight statusline
+set laststatus=2
+set noshowmode
+let g:lightline = {
+      \ 'colorscheme': 'catppuccin_mocha',
+      \ 'active': {
+      \   'left': [ ['mode', 'paste'], ['readonly', 'filename', 'modified'], ['filetype', 'encoding', 'branch'] ]
+      \ },
+      \ 'component_function': {
+      \   'filename': 'LightlineFilename',
+      \   'branch': 'FugitiveHead'
+      \ },
+      \ }
+function! LightlineFilename()
+  return expand('%:p') != '' ? expand('%:t') : '[No File]'
+endfunction
+
+" Git branch function from vim-fugitive
+function! FugitiveHead()
+  return fugitive#head()
+endfunction
 
 " Highlight TODO and FIXME comments
 autocmd Syntax * syntax match TodoComment /\v<(TODO|FIXME|BUG):?/
@@ -81,22 +177,6 @@ nmap <silent> <leader>a <Plug>(coc-codeaction-selected)   " Apply code action
 nmap <silent> <space>a :<C-u>CocList diagnostics<cr>      " Open diagnostics
 nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
 nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
-
-" Lightline settings for a lightweight statusline
-set laststatus=2
-set noshowmode
-let g:lightline = {
-      \ 'colorscheme': 'catppuccin_mocha',
-      \ 'active': {
-      \   'left': [ ['mode', 'paste'], ['readonly', 'filename', 'modified'] ]
-      \ },
-      \ 'component_function': {
-      \   'filename': 'LightlineFilename',
-      \ },
-      \ }
-function! LightlineFilename()
-  return expand('%:p') != '' ? expand('%:t') : '[No File]'
-endfunction
 
 " Markdown specific settings
 autocmd FileType markdown setlocal tabstop=2 shiftwidth=2 expandtab
@@ -134,21 +214,39 @@ elseif has ('win32') || has('win64')
 endif
 EOL
 
+# Create tmux.conf file
+echo "Creating .tmux.conf file..."
+cat > ~/.tmux.conf <<EOL
+# Set prefix key to Ctrl+A
+set-option -g prefix C-a
+unbind C-b
+bind C-a send-prefix
+
+# Use Vim-style keybindings for pane splitting
+bind | split-window -h
+bind - split-window -v
+
+# Navigate between panes
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# Enable mouse mode
+set -g mouse on
+EOL
+
 # Run Vim in headless mode to install the plugins using vim-plug
 echo "Installing Vim plugins using vim-plug..."
 vim +PlugInstall +qall
 
 # Install coc.nvim extensions for multiple languages
 echo "Installing CoC LSP extensions..."
-vim -c 'CocInstall -sync coc-tsserver coc-pyright coc-html coc-css coc-json coc-markdownlint coc-markdown-preview-enhanced coc-prettier | q'
+vim -c 'CocInstall -sync coc-tsserver coc-pyright coc-html coc-css coc-json coc-markdownlint coc-markdown-preview-enhanced coc-prettier coc-python | q'
 
 # Create the coc-settings.json file with specified configuration
-COC_SETTINGS_FILE=~/.vim/coc-settings.json
-
-if [ ! -f $COC_SETTINGS_FILE  ]; then
-    echo "Creating coc-settings.json..."
-    mkdir -p ~/.vim
-    cat > $COC_SETTINGS_FILE <<EOL
+echo "Creating coc-settings.json..."
+cat > ~/.vim/coc-settings.json  <<EOL
 {
     "prettier.enable": true,
     "prettier.singleQuote": true,
@@ -160,12 +258,15 @@ if [ ! -f $COC_SETTINGS_FILE  ]; then
     "python.linting.enabled": true,
     "python.formatting.provider": "black",
     "css.validate": true,
-    "html.autoClosingTags": true
+    "html.autoClosingTags": true,
+    "markdown-preview-enhanced.previewTheme": "github-light",
+    "markdown-preview-enhanced.previewURL": "http://localhost:3000",
+    "markdown-preview-enhanced.scrollSync": true,
+    "markdown-preview-enhanced.liveUpdate": true,
+    "markdown-preview-enhanced.enableScriptExecution": false,
+    "coc.preferences.formatOnSaveFiletypes": ["javascript", "typescript", "json", "css", "html", "python", "markdown"]
 }
 EOL
-    echo "coc-settings.json created at ~/.vim/coc-settings.json"
-else
-    echo "coc-settings.json already exists, skipping creation."
-fi
 
-echo "Setup complete!"
+echo "coc-settings.json created at ~/.vim/coc-settings.json"
+echo "Setup complete! To apply your settings, open Vim and run ':source ~/.vimrc'."
