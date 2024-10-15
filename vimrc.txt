@@ -8,12 +8,11 @@ Plug 'maxmellon/vim-jsx-pretty'         " JSX syntax highlighting
 Plug 'tpope/vim-commentary'             " Easy commenting
 Plug 'neoclide/coc.nvim', {'branch': 'release'} " Main plugin for LSP, formatting, etc.
 Plug 'plasticboy/vim-markdown'          " Markdown syntax highlighting
-
-" Additional lightweight and utility plugins
 Plug 'jiangmiao/auto-pairs'             " Auto close brackets, tags
 Plug 'tpope/vim-surround'               " Surround words with tags/quotes/brackets
 Plug 'preservim/nerdtree'               " File explorer
-Plug 'ctrlpvim/ctrlp.vim'               " Fuzzy file finder
+Plug 'junegunn/fzf.vim'                 " Fzf fuzzy finder
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'tpope/vim-fugitive'               " Git integration
 Plug 'itchyny/lightline.vim'            " Lightweight statusline
 
@@ -28,6 +27,7 @@ set tabstop=4               " Tab width (4 spaces)
 set shiftwidth=4            " Autoindent width
 set expandtab               " Use spaces instead of tabs
 set termguicolors           " Sets GUI colors for catppuccin
+let mapleader = ','         " Set leader key to ,
 
 " Search settings
 set ignorecase              " Case-insensitive search
@@ -36,9 +36,36 @@ set smartcase               " If uppercase is used, respect case sensitivity
 " Enable NERDTree toggle
 nnoremap <C-n> :NERDTreeToggle<CR>
 
-" Configure CtrlP for fast file search
-let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
-let g:ctrlp_working_path_mode = 0
+" Auto-open and close NERDTree
+autocmd vimenter * NERDTree | wincmd p
+autocmd BufEnter * if winnr('$') == 1 && exists('t:NERDTreeBufName') && bufname() == t:NERDTreeBufName | quit | endif
+
+" Fzf keybindings
+nnoremap <C-p> :Files<CR>    " Fuzzy file search
+nnoremap <C-b> :Buffers<CR>  " Search open buffers
+nnoremap <C-f> :Rg<CR>       " Fuzzy search through files
+
+" Lightline settings for a lightweight statusline
+set laststatus=2
+set noshowmode
+let g:lightline = {
+      \ 'colorscheme': 'catppuccin_mocha',
+      \ 'active': {
+      \   'left': [ ['mode', 'paste'], ['readonly', 'filename', 'modified'], ['filetype', 'encoding', 'branch'] ]
+      \ },
+      \ 'component_function': {
+      \   'filename': 'LightlineFilename',
+      \   'branch': 'FugitiveHead'
+      \ },
+      \ }
+function! LightlineFilename()
+  return expand('%:p') != '' ? expand('%:t') : '[No File]'
+endfunction
+
+" Git branch function from vim-fugitive
+function! FugitiveHead()
+  return fugitive#head()
+endfunction
 
 " Highlight TODO and FIXME comments
 autocmd Syntax * syntax match TodoComment /\v<(TODO|FIXME|BUG):?/
@@ -69,22 +96,6 @@ nmap <silent> <leader>a <Plug>(coc-codeaction-selected)   " Apply code action
 nmap <silent> <space>a :<C-u>CocList diagnostics<cr>      " Open diagnostics
 nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
 nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
-
-" Lightline settings for a lightweight statusline
-set laststatus=2
-set noshowmode
-let g:lightline = {
-      \ 'colorscheme': 'catppuccin_mocha',
-      \ 'active': {
-      \   'left': [ ['mode', 'paste'], ['readonly', 'filename', 'modified'] ]
-      \ },
-      \ 'component_function': {
-      \   'filename': 'LightlineFilename',
-      \ },
-      \ }
-function! LightlineFilename()
-  return expand('%:p') != '' ? expand('%:t') : '[No File]'
-endfunction
 
 " Markdown specific settings
 autocmd FileType markdown setlocal tabstop=2 shiftwidth=2 expandtab

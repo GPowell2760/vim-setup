@@ -9,5 +9,11 @@
     "python.linting.enabled": true,
     "python.formatting.provider": "black",
     "css.validate": true,
-    "html.autoClosingTags": true
+    "html.autoClosingTags": true,
+    "markdown-preview-enhanced.previewTheme": "github-light",
+    "markdown-preview-enhanced.previewURL": "http://localhost:3000",
+    "markdown-preview-enhanced.scrollSync": true,
+    "markdown-preview-enhanced.liveUpdate": true,
+    "markdown-preview-enhanced.enableScriptExecution": false,
+    "coc.preferences.formatOnSaveFiletypes": ["javascript", "typescript", "json", "css", "html", "python", "markdown"]
 }
