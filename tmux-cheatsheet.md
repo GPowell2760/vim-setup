@@ -4,7 +4,7 @@ Below are the TMUX keybindings located in the `.tmux.conf` file:
 
     - The prefix key is `Ctrl-A`
 
-## Pane Splitting`
+## Pane Splitting
 
     -|: Splits vertical
     --: Splits horizontal
