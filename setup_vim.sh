@@ -203,14 +203,6 @@ elseif has('unix')
     else
         colorscheme catppuccin_latte
     endif
-elseif has ('win32') || has('win64')
-    " Windows: Check if dark mode is enabled using Powershell
-    let os_dark_mode = system('Powershell -Command "[System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8; Get-ItemProperty -Path HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize | Select-Object -ExpandProperty AppsUseLightTheme"')
-    if os_dark_mode == "0\n"
-        colorscheme catppuccin_mocha
-    else
-        colorscheme catppuccin_latte
-    endif
 endif
 EOL
 
