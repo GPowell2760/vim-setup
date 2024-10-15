@@ -15,5 +15,12 @@
     "markdown-preview-enhanced.scrollSync": true,
     "markdown-preview-enhanced.liveUpdate": true,
     "markdown-preview-enhanced.enableScriptExecution": false,
+    "rust-analyzer.checkOnSave.command": "clippy",
+    "rust-analyzer.cargo.autoReload": true,
+    "rust-analyzer.cargo.runBuildScripts": true,
+    "rust-analyzer.lens.enable": true,
+    "rust-analyzer.inlayHints.enable": true,
+    "rust-analyzer.rustfmt.enableRangeFormatting": true,
+    "rust-analyzer.hover.documentation": true,
     "coc.preferences.formatOnSaveFiletypes": ["javascript", "typescript", "json", "css", "html", "python", "markdown"]
 }

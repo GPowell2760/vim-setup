@@ -2,16 +2,16 @@
 
 # Detect platform
 OS_TYPE="$(uname)"
-if [[ "$OS_TYPE" == "Linux" ]]; then
+if [ "$OS_TYPE" == "Linux" ]; then
     echo "Linux detected."
     INSTALL_CMD="sudo apt install -y"
-elif [[ "$OS_TYPE" == "Darwin" ]]; then
+elif [ "$OS_TYPE" == "Darwin" ]; then
     echo "macOS detected."
-    INSTALL_CMD="brew install"
     if ! command -v brew &> /dev/null; then
         echo "Homebrew is not installed. Please install Homebrew first: https://brew.sh/"
         exit 1
     fi
+    INSTALL_CMD="brew install"
 else
     echo "Unsupported OS detected: $OS_TYPE"
     echo "This script only supports Linux and macOS. Exiting..."
@@ -57,22 +57,42 @@ fi
 
 # Create a backup directory for configuration files
 BACKUP_DIR=~/vim_backup
+VIMRC=~/.vimrc
+TMUX_CONF=~/.tmux.conf
+COC_SETTINGS=~/.vim/coc-settings.json
+
 mkdir -p "$BACKUP_DIR"
+if [ $? -ne 0 ]; then
+    echo "Failed to create backup directory. Exiting..."
+    exit 1
+fi
 echo "Backing up current configuration files to $BACKUP_DIR"
 
 # Backup existing configuration files
-if [ -f ~/.vimrc ]; then
-    mv ~/.vimrc "$BACKUP_DIR/.vimrc.bak"
+if [ -f "$VIMRC" ]; then
+    mv "$VIMRC" "$BACKUP_DIR/.vimrc.bak"
+    if [ $? -ne 0 ]; then
+        echo "Failed to backup .vimrc file. Exiting..."
+        exit 1
+    fi
     echo ".vimrc file backed up as $BACKUP_DIR/.vimrc.bak"
 fi
 
-if [ -f ~/.tmux.conf ]; then
-    mv ~/.tmux.conf "$BACKUP_DIR/.tmux.conf.bak"
+if [ -f "$TMUX_CONF" ]; then
+    mv "$TMUX_CONF" "$BACKUP_DIR/.tmux.conf.bak"
+    if [ $? -ne 0 ]; then
+        echo "Failed to backup .tmux.conf file. Exiting..."
+        exit 1
+    fi
     echo ".tmux.conf file backed up as $BACKUP_DIR/.tmux.conf.bak"
 fi
 
-if [ -f ~/.vim/coc-settings.json ]; then
-    mv ~/.vim/coc-settings.json "$BACKUP_DIR/coc-settings.json.bak"
+if [ -f "$COC_SETTINGS" ]; then
+    mv "$COC_SETTINGS" "$BACKUP_DIR/coc-settings.json.bak"
+    if [ $? -ne 0 ]; then
+        echo "Failed to backup coc-settings.json file. Exiting..."
+        exit 1
+    fi
     echo "coc-settings.json backed up as $BACKUP_DIR/coc-settings.json.bak"
 fi
 
@@ -96,6 +116,7 @@ Plug 'junegunn/fzf.vim'                 " Fzf fuzzy finder
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'tpope/vim-fugitive'               " Git integration
 Plug 'itchyny/lightline.vim'            " Lightweight statusline
+Plug 'rust-lang/rust.vim'               " Rust syntax highlighting and formatting
 
 " Catppuccin theme
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
@@ -125,6 +146,12 @@ autocmd BufEnter * if winnr('$') == 1 && exists('t:NERDTreeBufName') && bufname(
 nnoremap <C-p> :Files<CR>    " Fuzzy file search
 nnoremap <C-b> :Buffers<CR>  " Search open buffers
 nnoremap <C-f> :Rg<CR>       " Fuzzy search through files
+
+" Enable Rust syntax highlighting and formatting
+autocmd BufNewFile, BufRead *.rs setlocal filetype=rust
+
+" Format Rust files on save using rustfmt
+autocmd BufWritePre *.rs :RustFmt
 
 " Lightline settings for a lightweight statusline
 set laststatus=2
@@ -229,12 +256,17 @@ set -g mouse on
 EOL
 
 # Run Vim in headless mode to install the plugins using vim-plug
-echo "Installing Vim plugins using vim-plug..."
-vim +PlugInstall +qall
+if [ -f ~/.vim/autoload/plug.vim  ]; then
+    echo "Installing Vim plugins using vim-plug..."
+    vim +PlugInstall +qall
+else
+    echo "vim-plug installation failed. Cannot install plugins"
+    exit 1
+fi
 
 # Install coc.nvim extensions for multiple languages
 echo "Installing CoC LSP extensions..."
-vim -c 'CocInstall -sync coc-tsserver coc-pyright coc-html coc-css coc-json coc-markdownlint coc-markdown-preview-enhanced coc-prettier coc-python | q'
+vim -c 'CocInstall -sync coc-tsserver coc-pyright coc-html coc-css coc-json coc-markdownlint coc-markdown-preview-enhanced coc-prettier coc-python coc-rust-analyzer | q'
 
 # Create the coc-settings.json file with specified configuration
 echo "Creating coc-settings.json..."
@@ -256,6 +288,13 @@ cat > ~/.vim/coc-settings.json  <<EOL
     "markdown-preview-enhanced.scrollSync": true,
     "markdown-preview-enhanced.liveUpdate": true,
     "markdown-preview-enhanced.enableScriptExecution": false,
+    "rust-analyzer.checkOnSave.command": "clippy",
+    "rust-analyzer.cargo.autoReload": true,
+    "rust-analyzer.cargo.runBuildScripts": true,
+    "rust-analyzer.lens.enable": true,
+    "rust-analyzer.inlayHints.enable": true,
+    "rust-analyzer.rustfmt.enableRangeFormatting": true,
+    "rust-analyzer.hover.documentation": true,
     "coc.preferences.formatOnSaveFiletypes": ["javascript", "typescript", "json", "css", "html", "python", "markdown"]
 }
 EOL

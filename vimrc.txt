@@ -15,6 +15,7 @@ Plug 'junegunn/fzf.vim'                 " Fzf fuzzy finder
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'tpope/vim-fugitive'               " Git integration
 Plug 'itchyny/lightline.vim'            " Lightweight statusline
+Plug 'rust-lang/rust.vim'               " Rust syntax highlighting and formatting
 
 " Catppuccin theme
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
@@ -44,6 +45,12 @@ autocmd BufEnter * if winnr('$') == 1 && exists('t:NERDTreeBufName') && bufname(
 nnoremap <C-p> :Files<CR>    " Fuzzy file search
 nnoremap <C-b> :Buffers<CR>  " Search open buffers
 nnoremap <C-f> :Rg<CR>       " Fuzzy search through files
+
+" Enable Rust syntax highlighting and formatting
+autocmd BufNewFile, BufRead *.rs setlocal filetype=rust
+
+" Format Rust files on save using rustfmt
+autocmd BufWritePre *.rs :RustFmt
 
 " Lightline settings for a lightweight statusline
 set laststatus=2
