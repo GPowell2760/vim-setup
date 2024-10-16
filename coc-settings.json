@@ -1,7 +1,6 @@
 {
     "prettier.enable": true,
     "prettier.singleQuote": true,
-    "prettier.markdownWhitespaceSensitivity": "strict",
     "prettier.trailingComma": "es5",
     "prettier.tabWidth": 4,
     "prettier.useTabs": false,
@@ -10,17 +9,6 @@
     "python.formatting.provider": "black",
     "css.validate": true,
     "html.autoClosingTags": true,
-    "markdown-preview-enhanced.previewTheme": "github-light",
-    "markdown-preview-enhanced.previewURL": "http://localhost:3000",
-    "markdown-preview-enhanced.scrollSync": true,
-    "markdown-preview-enhanced.liveUpdate": true,
-    "markdown-preview-enhanced.enableScriptExecution": false,
-    "rust-analyzer.checkOnSave.command": "clippy",
-    "rust-analyzer.cargo.autoReload": true,
-    "rust-analyzer.cargo.runBuildScripts": true,
     "rust-analyzer.lens.enable": true,
-    "rust-analyzer.inlayHints.enable": true,
-    "rust-analyzer.rustfmt.enableRangeFormatting": true,
-    "rust-analyzer.hover.documentation": true,
-    "coc.preferences.formatOnSaveFiletypes": ["javascript", "typescript", "json", "css", "html", "python", "markdown"]
+    "coc.preferences.formatOnSave": true,
 }
