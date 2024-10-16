@@ -206,7 +206,6 @@ nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
 nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
 
 " Markdown specific settings
-autocmd FileType markdown setlocal tabstop=2 shiftwidth=2 expandtab
 autocmd FileType markdown setlocal spell spelllang=en_us
 autocmd FileType markdown nnoremap <silent><buffer> <leader>p :call coc#rpc#request('markdown-preview-enhanced.openPreview')<CR>
 
@@ -274,7 +273,6 @@ cat > ~/.vim/coc-settings.json  <<EOL
 {
     "prettier.enable": true,
     "prettier.singleQuote": true,
-    "prettier.markdownWhitespaceSensitivity": "strict",
     "prettier.trailingComma": "es5",
     "prettier.tabWidth": 4,
     "prettier.useTabs": false,
@@ -283,19 +281,8 @@ cat > ~/.vim/coc-settings.json  <<EOL
     "python.formatting.provider": "black",
     "css.validate": true,
     "html.autoClosingTags": true,
-    "markdown-preview-enhanced.previewTheme": "github-light",
-    "markdown-preview-enhanced.previewURL": "http://localhost:3000",
-    "markdown-preview-enhanced.scrollSync": true,
-    "markdown-preview-enhanced.liveUpdate": true,
-    "markdown-preview-enhanced.enableScriptExecution": false,
-    "rust-analyzer.checkOnSave.command": "clippy",
-    "rust-analyzer.cargo.autoReload": true,
-    "rust-analyzer.cargo.runBuildScripts": true,
     "rust-analyzer.lens.enable": true,
-    "rust-analyzer.inlayHints.enable": true,
-    "rust-analyzer.rustfmt.enableRangeFormatting": true,
-    "rust-analyzer.hover.documentation": true,
-    "coc.preferences.formatOnSaveFiletypes": ["javascript", "typescript", "json", "css", "html", "python", "markdown"]
+    "coc.preferences.formatOnSave": true,
 }
 EOL
 
