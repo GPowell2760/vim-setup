@@ -105,7 +105,6 @@ nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
 nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
 
 " Markdown specific settings
-autocmd FileType markdown setlocal tabstop=2 shiftwidth=2 expandtab
 autocmd FileType markdown setlocal spell spelllang=en_us
 autocmd FileType markdown nnoremap <silent><buffer> <leader>p :call coc#rpc#request('markdown-preview-enhanced.openPreview')<CR>
 
