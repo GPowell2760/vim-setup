@@ -1,104 +1,109 @@
 #!/bin/bash
+set -e    # Exit script on any command
+
+# OS Type
+OS_TYPE="$(uname)"
+
+# Variables
+VIMRC="$HOME/.vimrc"
+COC_SETTINGS="$HOME/.vim/coc-settings.json"
+PYTHON_PATH=$(command -v python3 || echo "/usr/bin/python3")
+
+# Function to print error and exit
+error_exit() {
+    echo "[ERROR]: $1"
+    exit 1
+}
+
+sudo_check() {
+  if ! command -v sudo &> /dev/null; then
+    echo "[WARNING] sudo is not installed or configured. Some commands may fail."
+  fi
+}
+
+check_xcode_select() {
+  if ! xcode-select -p &> /dev/null; then
+    error_exit "Xcode Command Line Tools are not installed. Please install them with: 'xcode-select --install'"
+  fi
+}
 
 # Detect platform
-OS_TYPE="$(uname)"
-if [ "$OS_TYPE" == "Linux" ]; then
-    echo "Linux detected."
-    INSTALL_CMD="sudo apt install -y"
-elif [ "$OS_TYPE" == "Darwin" ]; then
-    echo "macOS detected."
-    if ! command -v brew &> /dev/null; then
-        echo "Homebrew is not installed. Please install Homebrew first: https://brew.sh/"
-        exit 1
-    fi
-    INSTALL_CMD="brew install"
-else
-    echo "Unsupported OS detected: $OS_TYPE"
-    echo "This script only supports Linux and macOS. Exiting..."
-    exit 1
-fi
+detect_platform() {
+  case "$OS_TYPE" in
+    "Linux")
+      echo "[INFO] Linux detected."
+      INSTALL_CMD="sudo apt install -y"
+      ;;
+    "Darwin")
+      echo "[INFO] macOS detected."
+      check_xcode_select
+      if ! command -v brew &> /dev/null; then
+        error_exit "Homebrew is not installed. Please install Homebrew first: https://brew.sh"
+      fi
+      INSTALL_CMD="brew install"
+      ;;
+    *)
+      error_exit "Unsupported OS detected: $OS_TYPE. Exiting..."
+      ;;
+  esac  
+}
 
-# Install tmux for terminal management
-if ! command -v tmux &> /dev/null; then
-    echo "Installing tmux..."
-    $INSTALL_CMD tmux
-else
-    echo "tmux is already installed"
-fi
+# Install a package if not installed
+install_package() {
+  local pkg="$1"
+  if ! command -v "$pkg" &> /dev/null; then
+    echo "[INFO] $pkg not found. Installing $pkg..."
+    echo "[INFO] Running: $INSTALL_CMD $pkg"
+    $INSTALL_CMD "$pkg"
+  else
+    echo "[SUCCESS] $pkg is already installed."
+  fi
+}
 
-# Check if Vim is installed
-if ! command -v vim &> /dev/null; then
-    echo "Vim could not be found. Installing Vim..."
-    $INSTALL_CMD vim
-else
-    echo "Vim is already installed."
-fi
+# Backup configuration file if it exists
+backup_file() {
+  local file="$1"
+  local backup_dir="$2"
+  if [ -f "$file" ]; then
+    mkdir -p "$backup_dir"
+    mv "$file" "$backup_dir/$(basename "$file").bak"
+    echo "[INFO] Backed up $(basename "$file") to $backup_dir"
+  fi
+}
 
-# Check if fzf is installed
-if ! command -v fzf &> /dev/null; then
-    echo "fzf not found. Installing fzf..."
-    $INSTALL_CMD fzf
-else
-    echo "fzf is already installed."
-fi
+# Main script logic
+main() {
+  sudo_check
+  detect_platform
+  BACKUP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/vim_backup_XXXX")
+  echo "[INFO] Backups will be stored in: $BACKUP_DIR"
 
-# Install vim-plug if not installed
-if [ ! -f ~/.vim/autoload/plug.vim  ]; then
-    echo "Installing vim-plug..."
+  # Install dependencies
+  if [ "$OS_TYPE" == "Linux" ]; then
+    install_package "curl"
+  fi
+  install_package "vim" 
+  install_package "fzf" 
+
+  # Backup configurations
+  backup_file "$VIMRC" "$BACKUP_DIR"
+  backup_file "$COC_SETTINGS" "$BACKUP_DIR"
+
+  echo "[INFO] Backed-up files:"
+  ls -l "$BACKUP_DIR"
+
+  # Install vim-plug
+  if [ ! -f ~/.vim/autoload/plug.vim ]; then
+    echo "[INFO] Installing vim-plug..."
     curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    if [ $? -ne 0  ]; then
-        echo "Failed to install vim-plug. Exiting..."
-        exit 1
-    fi
-else
-    echo "vim-plug is already installed."
-fi
+      https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  else
+    echo "[SUCCESS] vim-plug is already installed."
+  fi
 
-# Create a backup directory for configuration files
-BACKUP_DIR=~/vim_backup
-VIMRC=~/.vimrc
-TMUX_CONF=~/.tmux.conf
-COC_SETTINGS=~/.vim/coc-settings.json
-
-mkdir -p "$BACKUP_DIR"
-if [ $? -ne 0 ]; then
-    echo "Failed to create backup directory. Exiting..."
-    exit 1
-fi
-echo "Backing up current configuration files to $BACKUP_DIR"
-
-# Backup existing configuration files
-if [ -f "$VIMRC" ]; then
-    mv "$VIMRC" "$BACKUP_DIR/.vimrc.bak"
-    if [ $? -ne 0 ]; then
-        echo "Failed to backup .vimrc file. Exiting..."
-        exit 1
-    fi
-    echo ".vimrc file backed up as $BACKUP_DIR/.vimrc.bak"
-fi
-
-if [ -f "$TMUX_CONF" ]; then
-    mv "$TMUX_CONF" "$BACKUP_DIR/.tmux.conf.bak"
-    if [ $? -ne 0 ]; then
-        echo "Failed to backup .tmux.conf file. Exiting..."
-        exit 1
-    fi
-    echo ".tmux.conf file backed up as $BACKUP_DIR/.tmux.conf.bak"
-fi
-
-if [ -f "$COC_SETTINGS" ]; then
-    mv "$COC_SETTINGS" "$BACKUP_DIR/coc-settings.json.bak"
-    if [ $? -ne 0 ]; then
-        echo "Failed to backup coc-settings.json file. Exiting..."
-        exit 1
-    fi
-    echo "coc-settings.json backed up as $BACKUP_DIR/coc-settings.json.bak"
-fi
-
-# Create .vimrc file with provided configuration
-echo "Creating .vimrc file..."
-cat > ~/.vimrc <<EOL
+  # Create .vimrc file
+  echo "[INFO] Creating .vimrc file..."
+  cat > ~/.vimrc <<EOL
 " Initialize plugin manager
 call plug#begin('~/.vim/plugged')
 
@@ -113,22 +118,17 @@ Plug 'jiangmiao/auto-pairs'             " Auto close brackets, tags
 Plug 'tpope/vim-surround'               " Surround words with tags/quotes/brackets
 Plug 'preservim/nerdtree'               " File explorer
 Plug 'junegunn/fzf.vim'                 " Fzf fuzzy finder
+Plug 'psf/black', {'branch': 'stable'}  " Black formatter for Python               
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'tpope/vim-fugitive'               " Git integration
 Plug 'itchyny/lightline.vim'            " Lightweight statusline
-Plug 'rust-lang/rust.vim'               " Rust syntax highlighting and formatting
-
-" Catppuccin theme
-Plug 'catppuccin/vim', { 'as': 'catppuccin' }
-
 call plug#end()
 
-" Basic Vim settings
+" Basic Settings
 set number                  " Show line numbers
 set tabstop=4               " Tab width (4 spaces)
 set shiftwidth=4            " Autoindent width
 set expandtab               " Use spaces instead of tabs
-set termguicolors           " Sets GUI colors for catppuccin
 let mapleader = ','         " Set leader key to ,
 
 " Search settings
@@ -147,17 +147,10 @@ nnoremap <C-p> :Files<CR>    " Fuzzy file search
 nnoremap <C-b> :Buffers<CR>  " Search open buffers
 nnoremap <C-f> :Rg<CR>       " Fuzzy search through files
 
-" Enable Rust syntax highlighting and formatting
-autocmd BufNewFile, BufRead *.rs setlocal filetype=rust
-
-" Format Rust files on save using rustfmt
-autocmd BufWritePre *.rs :RustFmt
-
 " Lightline settings for a lightweight statusline
 set laststatus=2
 set noshowmode
 let g:lightline = {
-      \ 'colorscheme': 'catppuccin_mocha',
       \ 'active': {
       \   'left': [ ['mode', 'paste'], ['readonly', 'filename', 'modified'], ['filetype', 'encoding', 'branch'] ]
       \ },
@@ -171,9 +164,15 @@ function! LightlineFilename()
 endfunction
 
 " Git branch function from vim-fugitive
-function! FugitiveHead()
-  return fugitive#head()
-endfunction
+if exists('*fugitive#head')
+  function! FugitiveHead()
+    return fugitive#head()
+  endfunction
+else
+  function! FugitiveHead()
+    return ''
+  endfunction
+endif
 
 " Highlight TODO and FIXME comments
 autocmd Syntax * syntax match TodoComment /\v<(TODO|FIXME|BUG):?/
@@ -205,86 +204,45 @@ nmap <silent> <space>a :<C-u>CocList diagnostics<cr>      " Open diagnostics
 nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
 nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
 
-" Markdown specific settings
-autocmd FileType markdown setlocal spell spelllang=en_us
-autocmd FileType markdown nnoremap <silent><buffer> <leader>p :call coc#rpc#request('markdown-preview-enhanced.openPreview')<CR>
-
 " Disable automatic code folding for markdown
 let g:vim_markdown_folding_disabled = 1
 
-" Dynamically set Catppuccin theme based on OS light/dark mode
-if has('mac')
-    " macOS: Check if the system is in dark mode
-    let os_dark_mode = system("defaults read -g AppleInterfaceStyle 2>/dev/null")
-    if os_dark_mode == "Dark\n"
-        colorscheme catppuccin_mocha
-    else
-        colorscheme catppuccin_latte
-    endif
-elseif has('unix')
-    " Linux: Check if the GTK theme is dark
-    let gtk_theme = system("gsettings get org.gnome.desktop.interface gtk-theme")
-    if gtk_theme =~? 'dark'
-        colorscheme catppuccin_mocha
-    else
-        colorscheme catppuccin_latte
-    endif
-endif
 EOL
 
-# Create tmux.conf file
-echo "Creating .tmux.conf file..."
-cat > ~/.tmux.conf <<EOL
-# Set prefix key to Ctrl+A
-set-option -g prefix C-a
-unbind C-b
-bind C-a send-prefix
+  # Install plugins using vim-plug
+  echo "[INFO] Installing Vim plugins..."
+  vim +PlugInstall +qall
 
-# Use Vim-style keybindings for pane splitting
-bind | split-window -h
-bind - split-window -v
+  # Install CoC extensions
+  read -p "[INFO] Do you want to install CoC extensions? (y/n): " install_coc
+  if [[ "$install_coc" =~ ^[Yy]$ ]]; then
+    echo "[INFO] Installing CoC extensions..."
+    vim -c 'CocInstall -sync coc-tsserver coc-pyright coc-html coc-css coc-json coc-prettier coc-python | q'
+  else
+    echo "[INFO] Skipping CoC extensions installation"
+  fi
 
-# Navigate between panes
-bind h select-pane -L
-bind j select-pane -D
-bind k select-pane -U
-bind l select-pane -R
-
-# Enable mouse mode
-set -g mouse on
-EOL
-
-# Run Vim in headless mode to install the plugins using vim-plug
-if [ -f ~/.vim/autoload/plug.vim  ]; then
-    echo "Installing Vim plugins using vim-plug..."
-    vim +PlugInstall +qall
-else
-    echo "vim-plug installation failed. Cannot install plugins"
-    exit 1
-fi
-
-# Install coc.nvim extensions for multiple languages
-echo "Installing CoC LSP extensions..."
-vim -c 'CocInstall -sync coc-tsserver coc-pyright coc-html coc-css coc-json coc-markdownlint coc-markdown-preview-enhanced coc-prettier coc-python coc-rust-analyzer | q'
-
-# Create the coc-settings.json file with specified configuration
-echo "Creating coc-settings.json..."
-cat > ~/.vim/coc-settings.json  <<EOL
+  # Create the coc-settings.json file with specified configuration
+  echo "[INFO] Creating coc-settings.json..."
+  cat > "$COC_SETTINGS"  <<EOL
 {
-    "prettier.enable": true,
-    "prettier.singleQuote": true,
-    "prettier.trailingComma": "es5",
-    "prettier.tabWidth": 4,
-    "prettier.useTabs": false,
-    "python.pythonPath": "/usr/bin/python3",
-    "python.linting.enabled": true,
-    "python.formatting.provider": "black",
-    "css.validate": true,
-    "html.autoClosingTags": true,
-    "rust-analyzer.lens.enable": true,
-    "coc.preferences.formatOnSave": true,
+  "prettier.enable": true,
+  "prettier.singleQuote": true,
+  "prettier.trailingComma": "es5",
+  "prettier.tabWidth": 4,
+  "prettier.useTabs": false,
+  "python.pythonPath": "$PYTHON_PATH",
+  "python.linting.enabled": true,
+  "python.formatting.provider": "black",
+  "css.validate": true,
+  "html.autoClosingTags": true,
+  "coc.preferences.formatOnSave": true
 }
 EOL
 
-echo "coc-settings.json created at ~/.vim/coc-settings.json"
-echo "Setup complete! To apply your settings, open Vim and run ':source ~/.vimrc'."
+  echo "[SUCCESS] Setup complete! Configuration backups are stored in: $BACKUP_DIR"
+  echo "[INFO] To apply your settings, open Vim and run ':source ~/.vimrc'."
+}
+
+# Execute the main function
+main

@@ -1,140 +1,118 @@
-# Vim Config Setup
+# Vim Configuration Setup Script
 
-## Automated Installation (Recommended)
+This repository contains a Bash script to set up a fully featured Vim development environment tailored for web development, Python, and general coding productivity.
 
-To quickly set up Vim with all dependencies and configurations, follow these steps:
+## Features
 
-1. Clone this repository or download the setup_vim.sh script.
+- Cross-Platform Support: Works on both Linux and macOS.
+- Dependency Management: Automatically installs required tools like Vim, fzf, and vim-plug.
+- Configuration Backup: Safely backs up existing Vim configurations.
+- Plugin Management:
+- Installs popular Vim plugins such as:
+- NERDTree: File explorer.
+- fzf: Fuzzy finder.
+- coc.nvim: Language Server Protocol (LSP) and IntelliSense.
+- Black: Python code formatter.
+- vim-commentary: Easy commenting.
+- Automatically installs plugins via vim-plug.
+- Customizable Key Mappings: Includes user-friendly shortcuts for file navigation, fuzzy search, and code diagnostics.
+- Code Formatting and Linting:
+- Configures CoC with format-on-save and integrated linters.
+- Supports Python, JavaScript, HTML, CSS, and more.
+
+## Requirements
+
+- Linux or macOS operating system.
+- Bash shell (default on most Unix-based systems).
+- Sudo privileges for package installations (if required).
+
+## macOS-Specific Requirements
+
+- Xcode Command Line Tools (run xcode-select --install if not installed).
+- Homebrew for package management.
+
+## Installation
+
+1. Clone this repository:
+
+   ```bash
+   git clone https://github.com/GPowell2760/vim-setup.git
+   cd vim-setup
+   ```
+
 2. Make the script executable:
 
-    ```bash
-    chmod +x setup_vim.sh
-    ```
+   ```bash
+   chmod +x setup_vim.sh
+   ```
 
-3. Run the setup script:
+3. Run the script:
 
-    ```bash
-    ./setup_vim.sh
-    ```
+   ```bash
+   ./setup_vim.sh
+   ```
 
-What the script does:
+4. Follow the prompts to install plugins and CoC extensions.
 
-- Detects whether you're using Linux or macOS and installs any missing dependencies (tmux, fzf, and vim)
-- Installs [vim-plug](https://github.com/junegunn/vim-plug) for plugin management
-- Backs up any existing Vim configuration files (e.g., .vimrc, .tmux.conf, and coc-settings.json) to a directory called vim_backup in your home folder.
-- Sets up a new .vimrc file with your preferred settings for web development, including plugins like fzf.vim, NERDTree, lightline.vim, and others.
-- Installs essential [CoC](https://github.com/neoclide/coc.nvim) (Conquer of Completion) extensions for JavaScript, Python, HTML, CSS, JSON, Prettier, Markdown, and more.
-- Creates a coc-settings.json file with settings for Prettier, Python linting and formatting, and file validation.
+## What the Script Does
 
-Once the script completes, your Vim environment will be fully set up with the necessary plugins and configurations.
+1. Detects the operating system (Linux or macOS).
+2. Checks for essential tools (sudo, Homebrew, Xcode tools).
+3. Installs missing dependencies such as:
 
-## Manual Installation (Alternative)
+   - Vim
+   - Fzf
+   - Curl
 
-If you prefer to set up Vim manually, follow these steps.
+4. Creates backups of existing Vim configuration files in a temporary directory.
+5. Installs vim-plug and configures the following in .vimrc:
 
-### Dependencies
+   - Essential settings (line numbers, tab behavior, leader key).
+   - Plugin configurations and key mappings.
 
-Before setting up your Vim configuration, ensure the following dependencies are installed:
+6. Sets up coc-settings.json with default LSP configurations and Python formatting support.
 
-- Vim: This is usually installed by default on most systems
-- Node.js: Install using [nvm](https://github.com/nvm-sh/nvm)
-- vim-plug: A minimalist plugin manager for Vim, which you'll need to manage the Vim plugins.
+## Usage
 
-### Install Dependencies
+After running the script:
 
-1. Install nvm (Node Version Manager):
+- Open Vim to start using the new configuration.
+- Run :PlugInstall in Vim if plugins do not install automatically.
+- To add or update CoC extensions, run:
 
-    ```bash
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
-    ```
+```bash
+:CocInstall coc-tsserver coc-pyright coc-html coc-css coc-json coc-prettier
+```
 
-2. Install Node.js using nvm:
+## Key Features and Mappings
 
-    ```bash
-    nvm install 20
-    ```
+**NERDTree**
 
-3. Install vim-plug with this command:
+- Toggle NERDTree: Ctrl-n
+- Automatically opens and closes based on file activity.
 
-    ```bash
-    curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    ```
+**Fzf**
 
-### Setup Configuration
+- File search: Ctrl-p
+- Buffer search: Ctrl-b
+- Search within files: Ctrl-f
 
-1. Install .vimrc
+**CoC (Language Server)**
 
-- Move the provided vimrc.txt file to your home directory and rename it to .vimrc:
+- Go to definition: gd
+- Show references: gr
+- Rename symbol: ,rn
+- Format code: ,f
 
-  ```bash
-  mv ./vimrc.txt ~/.vimrc
-  ```
+## Backup and Cleanup
 
-- Open Vim and install the plugins by running:
+Backups of your original configuration files are stored in a temporary directory. The path will be displayed at the end of the script execution.
 
-  ```bash
-   :PlugInstall
-  ```
+## Known Issues
 
-### Configure CoC (Conquer of Completion)
+- If vim-plug fails to install, ensure you have a working internet connection and retry running the script.
+- Some plugins might require additional dependencies (e.g., fzf for fuzzy search).
 
-1. Navigate to the .vim directory:
+## Contributions
 
-    ```bash
-    cd ~/.vim
-    ```
-
-2. Create the coc-settings.json configuration file:
-
-    ```bash
-    touch coc-settings.json
-    ```
-
-3. Open coc-settings.json with your preferred text editor and enter the following configuration:
-
-    ```json
-    {
-      "prettier.enable": true,
-      "prettier.singleQuote": true,
-      "prettier.markdownWhitespaceSensitivity": "strict",
-      "prettier.trailingComma": "es5",
-      "prettier.tabWidth": 4,
-      "prettier.useTabs": false,
-      "python.pythonPath": "/usr/bin/python3",
-      "python.linting.enabled": true,
-      "python.formatting.provider": "black",
-      "css.validate": true,
-      "html.autoClosingTags": true,
-      "markdown-preview-enhanced.previewTheme": "github-light",
-      "markdown-preview-enhanced.previewURL": "http://localhost:3000",
-      "markdown-preview-enhanced.scrollSync": true,
-      "markdown-preview-enhanced.liveUpdate": true,
-      "markdown-preview-enhanced.enableScriptExecution": false,
-      "coc.preferences.formatOnSaveFiletypes": [
-        "markdown",
-        "javascript",
-        "typescript",
-        "json",
-        "css",
-        "html",
-        "python"
-      ]
-    }
-    ```
-
-### Install CoC Modules in Vim
-
-1. Open Vim and run the following commands to install CoC extensions:
-
-    ```bash
-    :CocInstall coc-pyright
-    :CocInstall coc-python
-    :CocInstall coc-tsserver
-    :CocInstall coc-html
-    :CocInstall coc-css
-    :CocInstall coc-json
-    :CocInstall coc-markdownlint
-    :CocInstall coc-markdown-preview-enhanced
-    :CocInstall coc-prettier
-    ```
+Contributions are welcome! Please open an issue or submit a pull request to suggest improvements or additional features.
