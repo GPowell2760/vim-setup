@@ -11,16 +11,16 @@ Features
 - **Dependency Management**: Automatically installs required tools like Vim, fzf, and Vim-Plug.
 - **Configuration Backup**: Safely backs up existing Vim configurations.
 - **Plugin Management**:
-  - Installs popular Vim plugins such as:
-    - **NERDTree**: File explorer.
-    - **fzf**: Fuzzy finder.
-    - **coc.nvim**: Language Server Protocol (LSP) and IntelliSense.
-    - **Black**: Python code formatter.
-    - **vim-commentary**: Easy commenting.
+    - Installs popular Vim plugins such as:
+        - **NERDTree**: File explorer.
+        - **fzf**: Fuzzy finder.
+        - **coc.nvim**: Language Server Protocol (LSP) and IntelliSense.
+        - **Black**: Python code formatter.
+        - **vim-commentary**: Easy commenting.
 - **Customizable Key Mappings**: Includes user-friendly shortcuts for file navigation, fuzzy search, and code diagnostics.
 - **Code Formatting and Linting**:
-  - Configures CoC with format-on-save and integrated linters.
-  - Supports **Python**, **JavaScript**, **HTML**, **CSS**, and more.
+    - Configures CoC with format-on-save and integrated linters.
+    - Supports **Python**, **JavaScript**, **HTML**, **CSS**, and more.
 
 Requirements
 ------------
