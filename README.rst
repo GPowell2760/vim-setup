@@ -8,21 +8,19 @@ Features
 --------
 
 - **Cross-Platform Support**: Works on both Linux and macOS.
-- **Dependency Management**: Automatically installs required tools like Vim, fzf,
-and Vim-Plug.
+- **Dependency Management**: Automatically installs required tools like Vim, fzf, and Vim-Plug.
 - **Configuration Backup**: Safely backs up existing Vim configurations.
 - **Plugin Management**:
-  + Installs popular Vim plugins such as:
+  - Installs popular Vim plugins such as:
     - **NERDTree**: File explorer.
     - **fzf**: Fuzzy finder.
     - **coc.nvim**: Language Server Protocol (LSP) and IntelliSense.
     - **Black**: Python code formatter.
     - **vim-commentary**: Easy commenting.
-- **Customizable Key Mappings**: Includes user-friendly shortcuts for file navigation,
-fuzzy search, and code diagnostics.
+- **Customizable Key Mappings**: Includes user-friendly shortcuts for file navigation, fuzzy search, and code diagnostics.
 - **Code Formatting and Linting**:
-  + Configures CoC with format-on-save and integrated linters.
-  + Supports **Python**, **JavaScript**, **HTML**, **CSS**, and more.
+  - Configures CoC with format-on-save and integrated linters.
+  - Supports **Python**, **JavaScript**, **HTML**, **CSS**, and more.
 
 Requirements
 ------------
@@ -42,18 +40,21 @@ Installation
 
 1. **Clone this repository**:
 
-.. code:: shell
+.. code-block:: bash
+
     git clone https://github.com/GPowell2760/vim-setup.git
     cd vim-setup
 
 2. **Make the script executable**:
 
-.. code:: shell
+.. code-block:: bash
+
     chmod +x setup_vim.sh
 
 3. **Run the script**:
 
-.. code:: shell
+.. code-block:: bash
+
     ./setup_vim.sh
 
 4. **Follow the prompts** to install plugins and CoC extensions.
@@ -69,6 +70,7 @@ What the Script Does
 
     - Essential settings (line numbers, tab behavior, leader key).
     - Plugin configurations and key mappings.
+
 6. Sets up `coc-settings.json` with default LSP configurations and Python formatting
 support.
 
@@ -81,7 +83,8 @@ Usage
 - **Run**: `:PlugInstall` in Vim if plugins do not install automatically.
 - To add or update **CoC** extensions, run:
 
-.. code:: shell
+.. code-block:: bash
+
     :CocInstall coc-tserver coc-pyright coc-html coc-css coc-json coc-prettier
 
 Key Features and Mappings
@@ -114,13 +117,11 @@ The path will be displayed at the end of the script execution.
 Known Issues
 ------------
 
-- If vim-plug fails to install, ensure you have a working internet connection and
-retry running the script.
+- If vim-plug fails to install, ensure you have a working internet connection and retry running the script.
 - Some plugins might require additional dependencies (e.g., fzf for fuzzy search).
 
 Contributions
 -------------
 
-Contributions are welcome! Please open an issue or submit a pull request to suggest
-improvements or additional features.
+Contributions are welcome! Please open an issue or submit a pull request to suggest improvements or additional features.
 
