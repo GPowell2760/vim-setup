@@ -118,7 +118,6 @@ Plug 'jiangmiao/auto-pairs'             " Auto close brackets, tags
 Plug 'tpope/vim-surround'               " Surround words with tags/quotes/brackets
 Plug 'preservim/nerdtree'               " File explorer
 Plug 'junegunn/fzf.vim'                 " Fzf fuzzy finder
-Plug 'psf/black', {'branch': 'stable'}  " Black formatter for Python               
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'tpope/vim-fugitive'               " Git integration
 Plug 'itchyny/lightline.vim'            " Lightweight statusline
